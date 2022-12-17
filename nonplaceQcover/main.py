@@ -1,3 +1,6 @@
+import os
+import sys
+sys.path.append(os.getcwd())
 from nonplaceQcover.ga import GA
 from nonplaceQcover.problem import Problem
 from nonplaceQcover.unit import Target, Sensor
@@ -21,7 +24,7 @@ def read_file(path):
             targets.append(target)
 
         for _ in range(m):
-            x, y = f.readline().split()
+            x, y = f.readline().split(',')
             sensor = Sensor(float(x), float(y), theta, radius)
             sensors.append(sensor)
 
@@ -29,7 +32,7 @@ def read_file(path):
 
 
 if __name__ == '__main__':
-    problem = read_file('../test.txt')
+    problem = read_file('test.txt')
     solver = GA(problem)
     solution = solver.run()
 

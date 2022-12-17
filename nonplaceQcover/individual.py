@@ -8,7 +8,7 @@ class Individual:
         self.dim = dim
         self.active = np.random.choice([True, False], self.dim)
         self.alpha = np.random.uniform(0.0, 2 * np.pi, self.dim)
-        self.fitness = 0
+        self.fitness = (0,0)
 
     def copy(self):
         p = Individual(self.dim)
