@@ -66,5 +66,5 @@ class Problem:
     def evaluate(self, p: Individual):
         phi = self.get_achieved_coverage(p)
         if all([phi[j] >= target.k_cover for j, target in enumerate(self.targets)]):
-            return self.active_sensor_count(p)
+            return len(self.sensors) - self.active_sensor_count(p)
         return self.QBI(p)

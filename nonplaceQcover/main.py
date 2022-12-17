@@ -21,7 +21,7 @@ def read_file(path):
             targets.append(target)
 
         for _ in range(m):
-            x, y = f.readline().split()
+            x, y = f.readline().split(',')
             sensor = Sensor(float(x), float(y), theta, radius)
             sensors.append(sensor)
 
