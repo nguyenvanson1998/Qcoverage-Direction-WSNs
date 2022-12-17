@@ -11,6 +11,21 @@ class Problem:
         self.sensors = sensors
         self.targets = targets
 
+    def heuristic_sensor_angle_adjustment(self, p: Individual):
+        for i, sensor in enumerate(self.sensors):
+            for target in self.targets:
+                v_vector = target.pos - sensor.pos
+                distance = np.sqrt(np.sum(np.square(v_vector)))
+                if distance <= sensor.radius:
+                    angle = np.arctan2(v_vector[1], v_vector[0])
+                    alpha = angle + np.random.uniform(- sensor.theta / 2, sensor.theta / 2)
+                    while alpha < 0:
+                        alpha += 2 * np.pi
+                    while alpha > 2 * np.pi:
+                        alpha -= 2 * np.pi
+                    p.alpha[i] = alpha
+                    break
+
     def get_achieved_coverage(self, p: Individual):
         phi = np.zeros(len(self.targets), dtype=int)
         for i, sensor in enumerate(self.sensors):
@@ -18,6 +33,7 @@ class Problem:
                 for j, target in enumerate(self.targets):
                     if sensor.cover(p.alpha[i], target):
                         phi[j] += 1
+        phi = np.minimum(phi, np.array([target.k_cover for target in self.targets]))
         return phi
 
     def active_sensor_count(self, p: Individual):

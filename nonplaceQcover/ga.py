@@ -10,10 +10,18 @@ class GA:
         self.population = []
         self.convergence = []
 
+    def init_population(self):
+        # random init all
+        for _ in range(Config.POPULATION_SIZE):
+            self.population.append(Individual(len(self.problem.sensors)))
+
+        # heuristic sensor angle adjustment
+        for p in self.population[:(Config.POPULATION_SIZE // 2)]:
+            self.problem.heuristic_sensor_angle_adjustment(p)
+
     def get_best(self):
         best = self.population[0]
         for p in self.population:
-            p.fitness = self.problem.evaluate(p)
             if p.fitness > best.fitness:
                 best = p
         return best
@@ -45,8 +53,7 @@ class GA:
 
     def run(self):
         # init population
-        for _ in range(Config.POPULATION_SIZE):
-            self.population.append(Individual(len(self.problem.sensors)))
+        self.init_population()
 
         for p in self.population:
             p.fitness = self.problem.evaluate(p)
