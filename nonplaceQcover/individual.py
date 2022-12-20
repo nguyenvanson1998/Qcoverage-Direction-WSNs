@@ -18,7 +18,7 @@ class Individual:
         return p
 
     @staticmethod
-    def crossover(p1, p2):
+    def crossover(p1, p2, phi_p1, phi_p2):
         o1 = p1.copy()
         o2 = p2.copy()
 
@@ -32,6 +32,12 @@ class Individual:
         beta = np.where(u < 0.5, (2 * u) ** (1 / (Config.ETA + 1)),
                         (0.5 / u) ** (1 / (Config.ETA + 1)))
 
+        delta = phi_p1 - phi_p2
+        divider = np.max(np.abs(delta))
+        if divider != 0.0:
+            delta /= divider
+        beta = beta + (1 - beta) * delta
+
         o1.alpha = ((1 + beta) * p1.alpha + (1 - beta) * p2.alpha) / 2
         o1.alpha = np.clip(o1.alpha, 0, 2 * np.pi)
         o2.alpha = ((1 - beta) * p1.alpha + (1 + beta) * p2.alpha) / 2
@@ -39,7 +45,7 @@ class Individual:
 
         return o1, o2
 
-    def mutate(self):
+    def mutate(self, phi):
         # active mutate - bit flip
         mutated_idx = np.random.randint(0, self.dim)
         self.active[mutated_idx] = not self.active[mutated_idx]
@@ -52,5 +58,6 @@ class Individual:
                          1 - np.power(2 * (1 - u) + 2 * (u - 0.5) * np.power(alpha, Config.ETA + 1),
                                     1 / (Config.ETA + 1)))
 
-        self.alpha += Config.DELTA_MAX * sigma * (2 * np.pi)
+        delta_max = (1 - phi / self.dim) * np.pi
+        self.alpha += delta_max * sigma
         self.alpha = np.clip(self.alpha, 0, 2 * np.pi)

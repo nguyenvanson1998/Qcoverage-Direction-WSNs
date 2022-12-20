@@ -35,14 +35,15 @@ class GA:
             while p2 == p1:
                 p2 = np.random.choice(self.population)
             if np.random.random() < Config.CROSSOVER_RATE:
-                offspring.extend(Individual.crossover(p1, p2))
+                offspring.extend(Individual.crossover(p1, p2, self.problem.get_custom_phi(p1),
+                                                      self.problem.get_custom_phi(p2)))
             else:
                 offspring.extend([p1.copy(), p2.copy()])
 
             # mutation
             for p in offspring:
                 if np.random.random() < Config.MUTATION_RATE:
-                    p.mutate()
+                    p.mutate(self.problem.get_custom_phi(p))
 
         return offspring
 

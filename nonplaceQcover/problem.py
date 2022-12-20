@@ -36,6 +36,24 @@ class Problem:
         phi = np.minimum(phi, np.array([target.k_cover for target in self.targets]))
         return phi
 
+    def get_custom_phi(self, p: Individual):
+        phi = np.zeros(len(self.sensors), dtype=float)
+        for i, sensor in enumerate(self.sensors):
+            delta = 0.0
+            alpha = p.alpha[i]
+            f_vector = np.array([np.cos(alpha), np.sin(alpha)])
+            for target in self.targets:
+                v_vector = target.pos - sensor.pos
+                distance = np.sqrt(np.sum(np.square(v_vector)))
+                if distance <= sensor.radius:
+                    angle = np.arccos(np.clip(np.dot(f_vector, v_vector), -1.0, 1.0))
+                    if angle <= sensor.theta / 2:
+                        phi[i] += 1
+                    else:
+                        delta += angle - sensor.theta / 2
+            phi[i] += 1 / (1 + delta)
+        return phi
+
     def active_sensor_count(self, p: Individual):
         return np.count_nonzero(p.active)
 
