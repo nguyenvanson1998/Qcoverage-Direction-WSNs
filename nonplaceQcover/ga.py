@@ -22,8 +22,11 @@ class GA:
     def get_best(self):
         best = self.population[0]
         for p in self.population:
-            if p.fitness[0] > best.fitness[0] or p.fitness[1] > best.fitness[1]:
+            if p.fitness[0] > best.fitness[0]:
                 best = p
+            elif p.fitness[0] == best.fitness[0] and p.fitness[1] > best.fitness[1]:
+                best = p
+
         return best
 
     def reproduction(self):
