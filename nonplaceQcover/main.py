@@ -4,14 +4,14 @@ sys.path.append(os.getcwd())
 from nonplaceQcover.ga import GA
 from nonplaceQcover.problem import Problem
 from nonplaceQcover.unit import Target, Sensor
-
+import numpy as np
 
 def read_file(path):
     with open(path) as f:
         sensors = []
         targets = []
 
-        theta = float(f.readline())
+        theta = float(f.readline()) * np.pi / 180
         radius = float(f.readline())
         f.readline()
 
