@@ -1,8 +1,6 @@
 import numpy as np
 
 from ableplaceQcover.financhor import get_points_inside
-from nonplaceQcover.main import read_file
-from nonplaceQcover.problem import Problem
 from nonplaceQcover.unit import Sensor
 
 
@@ -43,50 +41,39 @@ def find_angle(sensor: Sensor, targets: list):
     return best_angle, tg[best_cover[0]:best_cover[1]]
 
 
-def greedy_sensors(problem: Problem):
+def greedy_sensors(targets: list, m: int, theta: float, R: float):
     # prepare necessary info
-    n = len(problem.targets)
+    n = len(targets)
     points = np.empty((n, 2), dtype=float)
-    for i, target in enumerate(problem.targets):
+    for i, target in enumerate(targets):
         points[i] = target.pos
 
     covered = np.zeros(n, dtype=int)
     dis = np.zeros([n, n], dtype=float)
 
-    for i, t1 in enumerate(problem.targets):
-        for j, t2 in enumerate(problem.targets):
+    for i, t1 in enumerate(targets):
+        for j, t2 in enumerate(targets):
             dis[i, j] = np.sqrt(np.sum(np.square(t1.pos - t2.pos)))
 
     positions = []  # candidate sensors' positions
     angles = []     # candidate sensors' angles
 
-    m = len(problem.sensors)
-    R = problem.sensors[0].radius
-    theta = problem.sensors[0].theta
-
     def get_priority(idx):
-        req = problem.targets[idx].k_cover - covered[idx]
+        req =targets[idx].k_cover - covered[idx]
         return req if req > 0 else req + m**2
 
     # find m sensors greedily
     while len(positions) < m:
-        best_idx = np.argmax([get_priority(idx) for idx in range(len(problem.targets))])
-        vip_target = problem.targets[best_idx]
+        best_idx = np.argmax([get_priority(idx) for idx in range(len(targets))])
+        vip_target = targets[best_idx]
 
         sensor = get_points_inside(vip_target.index, R, points, dis, 1)[0]
         sensor = Sensor(sensor[0], sensor[1], theta, R)
         positions.append(sensor.pos)
 
-        angle, covered_targets = find_angle(sensor, problem.targets)
+        angle, covered_targets = find_angle(sensor, targets)
         angles.append(angle)
         for tg in covered_targets:
             covered[tg.index] += 1
 
     return positions, angles
-
-
-if __name__ == '__main__':
-    problem = read_file('../test.txt')
-    positions, angles = greedy_sensors(problem)
-    for pos, alpha in zip(positions, angles):
-        print(pos, alpha)
