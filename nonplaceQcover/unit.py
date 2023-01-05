@@ -2,7 +2,8 @@ import numpy as np
 
 
 class Target:
-    def __init__(self, x, y, k_cover):
+    def __init__(self, x, y, k_cover, index):
+        self.index = index
         self.pos = np.array([x, y])
         self.k_cover = k_cover
 
