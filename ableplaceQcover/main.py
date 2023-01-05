@@ -26,5 +26,8 @@ def read_file(path):
 if __name__ == '__main__':
     targets, m, theta, R = read_file('../test.txt')
     positions, angles = greedy_sensors(targets, m, theta, R)
+
+    print('Number of active sensors:', len(positions))
+    print('Sensors:')
     for pos, alpha in zip(positions, angles):
-        print(pos, alpha)
+        print('position =', pos, 'angle =', alpha)

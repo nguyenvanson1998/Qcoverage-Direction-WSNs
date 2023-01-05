@@ -48,6 +48,7 @@ def greedy_sensors(targets: list, m: int, theta: float, R: float):
     for i, target in enumerate(targets):
         points[i] = target.pos
 
+    cover_requirement = np.array([tg.k_cover for tg in targets], dtype=int)
     covered = np.zeros(n, dtype=int)
     dis = np.zeros([n, n], dtype=float)
 
@@ -63,7 +64,7 @@ def greedy_sensors(targets: list, m: int, theta: float, R: float):
         return req if req > 0 else req + m**2
 
     # find m sensors greedily
-    while len(positions) < m:
+    while len(positions) < m and np.any(covered < cover_requirement):
         best_idx = np.argmax([get_priority(idx) for idx in range(len(targets))])
         vip_target = targets[best_idx]
 
