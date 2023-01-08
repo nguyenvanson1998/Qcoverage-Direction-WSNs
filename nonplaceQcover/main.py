@@ -20,9 +20,9 @@ def read_file(path):
         n = int(f.readline())
         m = int(f.readline())
 
-        for _ in range(n):
+        for i in range(n):
             x, y, a = f.readline().split(',')
-            target = Target(float(x), float(y), float(a))
+            target = Target(float(x), float(y), int(a), i)
             targets.append(target)
 
         for _ in range(m):

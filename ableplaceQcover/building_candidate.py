@@ -1,34 +1,80 @@
-from nonplaceQcover.unit import Target
+import numpy as np
+
+from ableplaceQcover.financhor import get_points_inside
 from nonplaceQcover.unit import Sensor
-from financhor import get_points_inside
-def select_sroll_points(target: Target, r: float):
-    list_rool = []
-    list_rool.append([target.pos[0], target.pos[1]])
-    # first case
-    list_rool.append([target.pos[0] - r, target.pos[1]])
-    list_rool.append([target.pos[0] + r, target.pos[1]])
-    list_rool.append([target.pos[0], target.pos[1] + r])
-    list_rool.append([target.pos[0], target.pos[1] -r])
-    return list_rool
 
 
+def find_angle(sensor: Sensor, targets: list):
+    # list of cover-able targets
+    tg = [target for target in targets
+          if np.sqrt(np.sum(np.square(sensor.pos - target.pos))) <= sensor.radius]
+    if len(tg) == 0:
+        return None
 
-def get_sensor_candidate(targets, r):
-    candidates = []
-    candidates.extend([[targets[i].pos[0], targets[i].pos[1]] for i in range(len(targets))] )
-    for t in targets:
-        keep_number = t.k_cover
-        list_rool = select_sroll_points(t, r)
-        for rool in list_rool:
-            x = get_points_inside(rool,targets,r,keep_number)
-            candidates.extend(x)
-    return candidates
+    # sort targets by angle formed with sensor
+    all_angles = []
+    for target in targets:
+        v_vector = target.pos - sensor.pos
+        angle = np.arctan2(v_vector[1], v_vector[0]) + sensor.theta / 2
+        all_angles.append(angle)
 
-def cvert_cand_to_sensor(candidates, theta, radius):
-    """
-    This function is convert the list of point to sensor class
-    """
-    return [Sensor(float(candidates[i][0]), float(candidates[i][1]), theta=theta, radius=radius) for i in range(len(candidates))]
+    indices = np.argsort(all_angles)
+    tg = np.array(tg)[indices]
+    all_angles = np.array(all_angles)[indices]
+
+    # slide through potential angles while updating number of covered targets
+    best_cover = [0, 0]
+    best_angle = None
+    st = 0
+    fn = 0
+    for angle in all_angles:
+        while st < len(tg) and not sensor.cover(angle, tg[st]):
+            st += 1
+        while fn < len(tg) and sensor.cover(angle, tg[fn]):
+            fn += 1
+        if st >= fn:
+            break
+        if fn - st > best_cover[1] - best_cover[0]:
+            best_angle = angle
+            best_cover = [st, fn]
+
+    return best_angle, tg[best_cover[0]:best_cover[1]]
 
 
+def greedy_sensors(targets: list, m: int, theta: float, R: float):
+    # prepare necessary info
+    n = len(targets)
+    points = np.empty((n, 2), dtype=float)
+    for i, target in enumerate(targets):
+        points[i] = target.pos
 
+    cover_requirement = np.array([tg.k_cover for tg in targets], dtype=int)
+    covered = np.zeros(n, dtype=int)
+    dis = np.zeros([n, n], dtype=float)
+
+    for i, t1 in enumerate(targets):
+        for j, t2 in enumerate(targets):
+            dis[i, j] = np.sqrt(np.sum(np.square(t1.pos - t2.pos)))
+
+    positions = []  # candidate sensors' positions
+    angles = []     # candidate sensors' angles
+
+    def get_priority(idx):
+        req =targets[idx].k_cover - covered[idx]
+        return req if req > 0 else req + m**2
+
+    # find m sensors greedily
+    while len(positions) < m and np.any(covered < cover_requirement):
+        best_idx = np.argmax([get_priority(idx) for idx in range(len(targets))])
+        vip_target = targets[best_idx]
+
+        sensor = get_points_inside(vip_target.index, R, points, dis, 1)[0]
+        sensor = Sensor(sensor[0], sensor[1], theta, R)
+        positions.append(sensor.pos)
+
+        angle, covered_targets = find_angle(sensor, targets)
+        angles.append(angle)
+        for tg in covered_targets:
+            covered[tg.index] += 1
+
+    return positions, angles
