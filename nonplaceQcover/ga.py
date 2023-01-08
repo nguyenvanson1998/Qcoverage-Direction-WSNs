@@ -2,8 +2,7 @@ import numpy as np
 
 from nonplaceQcover.config import Config
 from nonplaceQcover.individual import Individual
-
-
+from tqdm import tqdm
 class GA:
     def __init__(self, problem):
         self.problem = problem
@@ -49,7 +48,7 @@ class GA:
 
     def selection(self, offspring):
         self.population.extend(offspring)
-        self.population.sort(key=lambda p: self.problem.evaluate(p), reverse=True)
+        self.population.sort(key=lambda p: p.fitness, reverse=True)
         self.population = self.population[:Config.POPULATION_SIZE]
 
     def run(self):
@@ -59,17 +58,33 @@ class GA:
         for p in self.population:
             p.fitness = self.problem.evaluate(p)
         best = self.get_best()
-        print(f'Generation 0, best fitness = {best.fitness}')
+        #print(f'Generation 0, best fitness = {best.fitness}')
         self.convergence.append(best)
 
         # evolve
-        for k in range(Config.MAX_GENERATION):
+        conve = 0
+        for k in tqdm(range(Config.MAX_GENERATION)):
+
             offspring = self.reproduction()
             for p in offspring:
                 p.fitness = self.problem.evaluate(p)
             self.selection(offspring)
-            best = self.get_best()
-            print(f'Generation {k}, best fitness = {best.fitness}')
+            best1 = self.get_best()
+            if best1.fitness[0] < best.fitness[0]:
+                conve = conve +1
+            elif best1.fitness[0] == best.fitness[0]:
+                if best1.fitness[1] <= best.fitness[1]:
+                    conve = conve +1
+                else:
+                    conve = 0
+            else:
+                conve =0
+            best = best1
             self.convergence.append(best)
+            if conve == Config.CONVERGING:
+                break
+
+            #print(f'Generation {k}, best fitness = {best.fitness}')
+            
 
         return self.get_best()
