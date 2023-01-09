@@ -46,15 +46,15 @@ def find_angle(sensor: Sensor, targets: list):
 def greedy_sensors(targets: list, m: int, theta: float, R: float):
     # prepare necessary info
     n = len(targets)
-    points = np.empty((n, 2), dtype=float)
+    # points = np.empty((n, 2), dtype=float)
 
     cover_requirement = np.array([tg.k_cover for tg in targets], dtype=int)
     covered = np.zeros(n, dtype=int)
-    dis = np.zeros([n, n], dtype=float)
-
-    for i, t1 in enumerate(targets):
-        for j, t2 in enumerate(targets):
-            dis[i, j] = np.sqrt(np.sum(np.square(t1.pos - t2.pos)))
+    # dis = np.zeros([n, n], dtype=float)
+    #
+    # for i, t1 in enumerate(targets):
+    #     for j, t2 in enumerate(targets):
+    #         dis[i, j] = np.sqrt(np.sum(np.square(t1.pos - t2.pos)))
 
     sensors = []    # candidate sensors' positions
     angles = []     # candidate sensors' angles
