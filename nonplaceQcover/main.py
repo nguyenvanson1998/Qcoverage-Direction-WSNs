@@ -22,7 +22,7 @@ def read_file(path):
 
         for i in range(n):
             x, y, a = f.readline().split(',')
-            target = Target(float(x), float(y), int(a), i)
+            target = Target(float(x), float(y), float(a), i)
             targets.append(target)
 
         for _ in range(m):
@@ -34,11 +34,11 @@ def read_file(path):
 
 def solve(inpath):
     
-    outpath = inpath.replace('data', 'results')
+    outpath = inpath.replace('test', 'results')
     outpath = outpath.replace('.inp', '.out')
     #print(f"Doing Test {outpath}")
     problem = read_file(inpath)
-    solver = GA(problem)
+    solver = GA(problem, outpath)
     solution = solver.run()
     with open(outpath, 'w+') as fout:
         fout.writelines(f'\tActivation vector:{solution.active}\n')
