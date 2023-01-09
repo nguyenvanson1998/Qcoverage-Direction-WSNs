@@ -1,5 +1,5 @@
-from nonplaceQcover.unit import Target
-from nonplaceQcover.unit import Sensor
+from ableplaceQcover.unit import Target
+from ableplaceQcover.unit import Sensor
 from financhor import get_points_inside
 def select_sroll_points(target: Target, r: float):
     list_rool = []
@@ -19,9 +19,14 @@ def get_sensor_candidate(targets, r):
     for t in targets:
         keep_number = t.k_cover
         list_rool = select_sroll_points(t, r)
+        keeps = []
         for rool in list_rool:
             x = get_points_inside(rool,targets,r,keep_number)
-            candidates.extend(x)
+            keeps.extend(x)
+        keeps.sort(key=lambda x: -x[2])
+        if len(keeps) > keep_number:
+            keeps = keeps[:int(keep_number)]
+        candidates.extend(keeps)
     return candidates
 
 def cvert_cand_to_sensor(candidates, theta, radius):

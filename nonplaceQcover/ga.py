@@ -2,7 +2,7 @@ import numpy as np
 
 from nonplaceQcover.config import Config
 from nonplaceQcover.individual import Individual
-
+from time import time
 
 class GA:
     def __init__(self, problem):
@@ -54,17 +54,22 @@ class GA:
 
     def run(self):
         # init population
+        st = time()
         self.init_population()
-
+        print(f'ínit time ={time() - st}')
+        st = time()
         for p in self.population:
             p.fitness = self.problem.evaluate(p)
         best = self.get_best()
+        print(f'evaluate 0 time ={time() - st}')
         print(f'Generation 0, best fitness = {best.fitness}')
         self.convergence.append(best)
 
         # evolve
         for k in range(Config.MAX_GENERATION):
+            st = time()
             offspring = self.reproduction()
+            print(f'repro 0 time ={time() - st}')
             for p in offspring:
                 p.fitness = self.problem.evaluate(p)
             self.selection(offspring)

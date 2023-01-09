@@ -12,7 +12,7 @@ def distance(rool, point):
     dis = math.sqrt((rool[0] - point.pos[0])*(rool[0] - point.pos[0]) + (rool[1] - point.pos[1])*(rool[1] - point.pos[1]))
     return dis
 # def get_points_inside(index, R, points, dis, keep_number):
-def get_points_inside(rool, points, R, keep_number):
+def get_points_inside(rool, points, R, keep_number=1):
     n = len(points)
     dis = np.full(n, 1)
     for i in range(n):
@@ -53,7 +53,7 @@ def get_points_inside(rool, points, R, keep_number):
             #     best_result = [points[index][0] + R*cos(angle[0]), points[index][1] + R*sin(angle[0])]
         keep_sensors.sort(key=lambda x: -x[2])
         if len(keep_sensors) > keep_number:
-            keep_sensors = keep_sensors[:keep_number]
+            keep_sensors = keep_sensors[:int(keep_number)]
         for s in keep_sensors:
             if s[2] <1:
                 keep_sensors.remove(s)
