@@ -1,6 +1,8 @@
 import numpy as np
 
 from ableplaceQcover.financhor import get_points_inside
+from nonplaceQcover.individual import Individual
+from nonplaceQcover.problem import Problem
 from nonplaceQcover.unit import Sensor
 
 
@@ -13,7 +15,7 @@ def find_angle(sensor: Sensor, targets: list):
 
     # sort targets by angle formed with sensor
     all_angles = []
-    for target in targets:
+    for target in tg:
         v_vector = target.pos - sensor.pos
         angle = np.arctan2(v_vector[1], v_vector[0]) + sensor.theta / 2
         all_angles.append(angle)
@@ -45,8 +47,6 @@ def greedy_sensors(targets: list, m: int, theta: float, R: float):
     # prepare necessary info
     n = len(targets)
     points = np.empty((n, 2), dtype=float)
-    for i, target in enumerate(targets):
-        points[i] = target.pos
 
     cover_requirement = np.array([tg.k_cover for tg in targets], dtype=int)
     covered = np.zeros(n, dtype=int)
@@ -56,7 +56,7 @@ def greedy_sensors(targets: list, m: int, theta: float, R: float):
         for j, t2 in enumerate(targets):
             dis[i, j] = np.sqrt(np.sum(np.square(t1.pos - t2.pos)))
 
-    positions = []  # candidate sensors' positions
+    sensors = []    # candidate sensors' positions
     angles = []     # candidate sensors' angles
 
     def get_priority(idx):
@@ -64,17 +64,21 @@ def greedy_sensors(targets: list, m: int, theta: float, R: float):
         return req if req > 0 else req + m**2
 
     # find m sensors greedily
-    while len(positions) < m and np.any(covered < cover_requirement):
+    while len(sensors) < m and np.any(covered < cover_requirement):
         best_idx = np.argmax([get_priority(idx) for idx in range(len(targets))])
         vip_target = targets[best_idx]
 
-        sensor = get_points_inside(vip_target.index, R, points, dis, 1)[0]
+        sensor = get_points_inside(vip_target.pos, targets, R, 1)[0]
         sensor = Sensor(sensor[0], sensor[1], theta, R)
-        positions.append(sensor.pos)
+        sensors.append(sensor)
 
         angle, covered_targets = find_angle(sensor, targets)
         angles.append(angle)
         for tg in covered_targets:
             covered[tg.index] += 1
 
-    return positions, angles
+    problem = Problem(sensors, targets)
+    individual = Individual(len(sensors))
+    individual.active = np.full(individual.dim, True, dtype=bool)
+    individual.alpha = np.array(angles)
+    return problem, individual
