@@ -28,3 +28,18 @@ File kết quả:
         -   chỉ số QBI: Q- balance index
 
         -   số sensor tối thiểu sử dụng thỏa mã Q- cover
+
+Chạy code:
+
+- chạy code ra kq:
+python3 nonplaceQcover/main.py
+
+  - thay đổi nội dung file:
+    if __name__ == '__main__':
+        solve("test/test.inp")
+    để thay đổi test case; hoặc uncomment đoạn code trong main để chạy hết test case.
+    
+- Để visualize kết quả có thể vào file draw.ipynb thay đổi đường dẫn input và kq tương đương:
+result_path = "results/results.json"
+target_path = "test/test.inp"
+sau đó chạy các ô bên trong

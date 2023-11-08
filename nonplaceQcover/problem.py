@@ -75,14 +75,22 @@ class Problem:
                         distance = np.sqrt(np.sum(np.square(target.pos - sensor.pos)))
                         cq += 1 - (distance / sensor.radius) ** 2
         return cq
-
+    def DI(self, p:Individual):
+        phi = self.get_achieved_coverage(p)
+        K = np.array([target.k_cover for target in self.targets])
+        numerator = np.sum((phi - K)*(phi - K))
+        denominator = np.sum(K*K)
+        return 1 - numerator/denominator
     def Pc(self, p: Individual):
         Pa = 5.268
-        Pi = 1.473
+        #Pi = 1.47
         Ps = 0.058
+        active = Pa*len(np.where(p.active == True)[0])
+        inactive = Ps*len(np.where(p.active == False)[0])
+        return active + inactive
 
     def evaluate(self, p: Individual):
-        phi = self.get_achieved_coverage(p)
+        #phi = self.get_achieved_coverage(p)
         #if all([phi[j] >= target.k_cover for j, target in enumerate(self.targets)]):
             
         return self.QBI(p), - self.active_sensor_count(p)

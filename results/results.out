@@ -1,8 +1,0 @@
-	Activation vector:[False False  True  True  True False]
-	Sensor angles: [5.55967946 5.9657736  3.50670744 4.23517099 2.46644528 5.65501836]
-Metrics:
-	CQ = 0.7320508075688776
-	QBI = 1.0
-	Number of active sensors = 3
-	DI = 1.0
-	Power Consumming = 15.977999999999998

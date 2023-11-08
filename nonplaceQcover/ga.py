@@ -2,13 +2,13 @@ import numpy as np
 
 from nonplaceQcover.config import Config
 from nonplaceQcover.individual import Individual
-from time import time
-
+from tqdm import tqdm
 class GA:
-    def __init__(self, problem):
+    def __init__(self, problem, path):
         self.problem = problem
         self.population = []
         self.convergence = []
+        self.path = path
 
     def init_population(self):
         # random init all
@@ -28,7 +28,7 @@ class GA:
 
     def reproduction(self):
         offspring = []
-        while len(offspring) < Config.POPULATION_SIZE:
+        for _ in range(Config.POPULATION_SIZE):
             # crossover
             p1 = np.random.choice(self.population)
             p2 = p1
@@ -37,15 +37,17 @@ class GA:
             if np.random.random() < Config.CROSSOVER_RATE:
                 offspring.extend(Individual.crossover(p1, p2, self.problem.get_custom_phi(p1),
                                                       self.problem.get_custom_phi(p2)))
-            else:
-                offspring.extend([p1.copy(), p2.copy()])
-
-            # mutation
-            for p in offspring:
-                if np.random.random() < Config.MUTATION_RATE:
-                    p.mutate(self.problem.get_custom_phi(p))
-
+            # else:
+            #     offspring.extend([p1.copy(), p2.copy()])
         return offspring
+
+    def mute(self):
+        # mutation
+        for p in self.population:
+            if np.random.random() < Config.MUTATION_RATE:
+                p.mutate(self.problem.get_custom_phi(p))
+
+
 
     def selection(self, offspring):
         self.population.extend(offspring)
@@ -54,27 +56,39 @@ class GA:
 
     def run(self):
         # init population
-        st = time()
         self.init_population()
-        print(f'ínit time ={time() - st}')
-        st = time()
+
         for p in self.population:
             p.fitness = self.problem.evaluate(p)
         best = self.get_best()
-        print(f'evaluate 0 time ={time() - st}')
-        print(f'Generation 0, best fitness = {best.fitness}')
+        #print(f'Generation 0, best fitness = {best.fitness}')
         self.convergence.append(best)
 
         # evolve
-        for k in range(Config.MAX_GENERATION):
-            st = time()
+        conve = 0
+        for k in tqdm(range(Config.MAX_GENERATION),desc = self.path):
+
             offspring = self.reproduction()
-            print(f'repro 0 time ={time() - st}')
+            self.mute()
             for p in offspring:
                 p.fitness = self.problem.evaluate(p)
             self.selection(offspring)
-            best = self.get_best()
-            print(f'Generation {k}, best fitness = {best.fitness}')
+            best1 = self.get_best()
+            if best1.fitness[0] - best.fitness[0] < - 1e-5:
+                conve = conve +1
+            elif abs(best1.fitness[0] - best.fitness[0]) <=1e-5:
+                if best1.fitness[1] - best.fitness[1] <= 1e-5:
+                    conve = conve +1
+                else:
+                    conve = 0
+            else:
+                conve =0
+            best = best1
             self.convergence.append(best)
+            if conve == Config.CONVERGING:
+                break
 
-        return self.get_best()
+            #print(f'Generation {k}, best fitness = {best.fitness}')
+            
+
+        return best

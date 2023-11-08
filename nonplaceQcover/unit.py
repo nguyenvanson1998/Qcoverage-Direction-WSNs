@@ -2,7 +2,8 @@ import numpy as np
 
 
 class Target:
-    def __init__(self, x, y, k_cover):
+    def __init__(self, x, y, k_cover, index):
+        self.index = index
         self.pos = np.array([x, y])
         self.k_cover = k_cover
 
@@ -18,9 +19,10 @@ class Sensor:
         # angle constraint
         f_vector = np.array([np.cos(alpha), np.sin(alpha)])
         v_vector = target.pos - self.pos
-        angle = np.arccos(np.clip(np.dot(f_vector, v_vector), -1.0, 1.0))
+        angle = np.arccos(np.dot(f_vector, v_vector)/(np.linalg.norm(f_vector)*(np.linalg.norm(v_vector))))
 
         # radius constraint
         distance = np.sqrt(np.sum(np.square(v_vector)))
 
         return angle <= self.theta / 2 and distance <= self.radius
+
