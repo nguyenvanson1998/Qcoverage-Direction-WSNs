@@ -16,8 +16,8 @@ class GA:
             self.population.append(Individual(len(self.problem.sensors)))
 
         # heuristic sensor angle adjustment
-        for p in self.population[:(Config.POPULATION_SIZE // 2)]:
-            self.problem.heuristic_sensor_angle_adjustment(p)
+        # for p in self.population[:(Config.POPULATION_SIZE // 2)]:
+        #     self.problem.heuristic_sensor_angle_adjustment(p)
 
     def get_best(self):
         best = self.population[0]
