@@ -19,7 +19,7 @@ class Sensor:
         # angle constraint
         f_vector = np.array([np.cos(alpha), np.sin(alpha)])
         v_vector = target.pos - self.pos
-        angle = np.arccos(np.clip(np.dot(f_vector, v_vector), -1.0, 1.0))
+        angle = np.arccos(np.dot(f_vector, v_vector)/(np.linalg.norm(f_vector)*(np.linalg.norm(v_vector))))
 
         # radius constraint
         distance = np.sqrt(np.sum(np.square(v_vector)))

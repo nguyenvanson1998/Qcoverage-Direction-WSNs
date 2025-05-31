@@ -56,5 +56,6 @@ if __name__ == '__main__':
     root = './test/'
     data = os.listdir(root)
     inpath = [root + i for i in data]
-    with Pool(2) as p:
-        p.map(solve,inpath)
+    solve(inpath[0])
+    # with Pool(1) as p:
+    #     p.map(solve,inpath)
